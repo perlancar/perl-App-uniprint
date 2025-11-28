@@ -51,7 +51,7 @@ sub _print_char {
 }
 
 sub run {
-    binmode STDOUT, ":utf8";
+    binmode STDOUT, ":encoding(UTF-8)";
     if (@ARGV) {
         for my $arg (@ARGV) {
             for my $char (split //, decode_utf8($arg, 1)) {
