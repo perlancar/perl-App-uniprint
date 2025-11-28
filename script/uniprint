@@ -1,0 +1,114 @@
+#!perl
+
+use 5.010001;
+use strict;
+use utf8;
+use warnings;
+
+use charnames ();
+use Encode qw(decode_utf8);
+use Getopt::Long;
+
+# AUTHORITY
+# DATE
+# DIST
+# VERSION
+
+my %Opts = (
+);
+
+sub parse_cmdline {
+    my $res = GetOptions(
+        'help|h'           => sub {
+            print <<USAGE;
+Usage:
+  uniprint [OPTION]... STRING ...
+  uniprint [OPTION]... < INPUT
+  uniprint --help, -h
+  uniprint --version, -v
+Options:
+  (None at the moment)
+
+For more details, see the manpage/documentation.
+USAGE
+            exit 0;
+        },
+        'version|v' => sub {
+            no warnings 'once';
+            say "uniprint version ", ($main::VERSION // 'dev');
+            exit 0;
+        },
+    );
+    exit 99 if !$res;
+}
+
+sub _print_char {
+    my $char = shift;
+
+    my $ord = ord($char);
+    my $name = charnames::viacode($ord);
+    printf "%s\t%6d\t%05x\t%s\n", $char, $ord, $ord, $name;
+}
+
+sub run {
+    binmode STDOUT, ":utf8";
+    if (@ARGV) {
+        for my $arg (@ARGV) {
+            for my $char (split //, decode_utf8($arg, 1)) {
+                _print_char($char);
+            }
+        }
+    } else {
+        while (defined(my $line = <>)) {
+            chomp $line;
+            for my $char (split //, $line) {
+                _print_char($char);
+            }
+        }
+    }
+}
+
+# MAIN
+
+parse_cmdline();
+run();
+
+1;
+# ABSTRACT: Print each Unicode character of input, along with its codepoint and name
+# PODNAME:
+
+=head1 SYNOPSIS
+
+ % uniprint [OPTION]... STRING ...
+ % uniprint [OPTION]... < INPUT
+
+Examples:
+
+ % uniprint "I💙U, 🫰"
+
+
+=head1 DESCRIPTION
+
+
+=head1 OPTIONS
+
+=over
+
+=back
+
+
+=head1 EXIT CODES
+
+0 on success.
+
+99 on command-line options error.
+
+
+=head1 FAQ
+
+
+=head1 SEE ALSO
+
+L<uni> from L<App::Uni>
+
+=cut
